@@ -1,10 +1,9 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Run by hand from the Actions tab until Pages is switched on for the repository.
-  # Then uncomment the push trigger so every push to main redeploys.
-  # push:
-  #   branches: [main]
+  push:
+    branches: [main]
+  # Also runnable by hand from the Actions tab.
   workflow_dispatch:
 
 permissions:

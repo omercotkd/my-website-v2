@@ -19,6 +19,6 @@ Every word on the page, including the experience entries, lives in [`src/data/co
 
 ## Deploy
 
-The site is set up for GitHub Pages at <https://omercotkd.github.io/my-website-v2/>. The workflow in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) builds and publishes it; it runs by hand from the Actions tab until Pages is switched on for the repository.
+Pushing to `main` builds the site and publishes it to GitHub Pages at <https://omercotkd.github.io/my-website-v2/> (see [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)).
 
 The design decisions and code layout are written up in [`DESIGN.md`](DESIGN.md).
