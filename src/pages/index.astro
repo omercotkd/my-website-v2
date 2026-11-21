@@ -1,0 +1,400 @@
+---
+import '@fontsource-variable/space-grotesk';
+import '@fontsource/ibm-plex-mono/latin-400.css';
+import '@fontsource/ibm-plex-mono/latin-600.css';
+import '@fontsource/caveat/latin-600.css';
+import '../styles/global.css';
+
+// Every word on the page comes from this one file.
+import content from '../data/content.json';
+
+// World layout, shared with src/scripts/main.ts through data attributes.
+const FIGURE_SCALE = 1.3;
+const GROUND = 560;
+const START_X = 300;
+const POST_XS = [780, 1260, 1740, 2220];
+// Far enough past the last signpost that the monitor only slides into view
+// once the last step has been read.
+const DESK_X = 3800;
+const GYM_X = 4800;
+const KITCHEN_X = 5800;
+const TORII_X = 7800;
+// Props are drawn in the stickman's own local space, then placed like him.
+const at = (x: number) => `translate(${x - 100 * FIGURE_SCALE},${GROUND - 220 * FIGURE_SCALE}) scale(${FIGURE_SCALE})`;
+const FUJI_X = TORII_X - 60;
+
+const month = (ym: string) => {
+  const [y, m] = ym.split('-');
+  return `${m}/${y}`;
+};
+const { meta, nav, intro, origin, desk, gym, kitchen, japan, contact } = content;
+const NAME = intro.name.toUpperCase();
+const experience = desk.experience.items;
+
+const dates = (start: string, end: string | null) =>
+  `${month(start)} – ${end ? month(end) : desk.experience.present}`;
+const kindLabel = (kind: string) => (desk.experience.kinds as Record<string, string>)[kind] ?? kind.toUpperCase();
+// "{count}" in a note is replaced with the number of items in that file.
+const counted = (note: string, count: number) => note.replace('{count}', String(count));
+
+const files = [
+  { id: 'languages', label: desk.languages.file, note: counted(desk.languages.note, desk.languages.items.length) },
+  { id: 'tools', label: desk.tools.file, note: counted(desk.tools.note, desk.tools.items.length) },
+  { id: 'databases', label: desk.databases.file, note: counted(desk.databases.note, desk.databases.others.length + 1) },
+  { id: 'experience', label: desk.experience.file, note: counted(desk.experience.note, experience.length) },
+  { id: 'certificates', label: desk.certificates.file, note: counted(desk.certificates.note, desk.certificates.items.length) },
+];
+
+const sceneIds = ['intro', 'origin', 'desk', 'gym', 'kitchen', 'japan', 'contact'];
+const scenes = sceneIds.map((id, i) => ({
+  id,
+  n: String(i + 1).padStart(2, '0'),
+  label: content.scenes[i] ?? id.toUpperCase(),
+}));
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
+    <title>{intro.name} · {intro.role}</title>
+    <meta name="description" content={intro.bio} />
+  </head>
+  <body>
+    <main
+      id="scroller"
+      class="scroller"
+      data-figure-scale={FIGURE_SCALE}
+      data-ground={GROUND}
+      data-start-x={START_X}
+      data-desk-x={DESK_X}
+      data-gym-x={GYM_X}
+      data-kitchen-x={KITCHEN_X}
+      data-torii-x={TORII_X}
+    >
+      <div class="pin">
+        <nav class="nav" aria-label="Sections">
+          <a class="nav-home" href="#top" data-goto="intro">
+            {NAME} · {nav.sheet} <span id="sheet-no">01</span>
+          </a>
+          <div class="nav-links">
+            <a href="#about" data-goto="intro" data-nav="about">{nav.about}</a>
+            <a href="#work" data-goto="desk" data-nav="work">{nav.work}</a>
+            <a href="#after-hours" data-goto="gym" data-nav="after">{nav.afterHours}</a>
+            <a href="#contact" data-goto="contact" data-nav="contact">{nav.contact}</a>
+          </div>
+        </nav>
+
+        <div class="stagebox" id="stagebox">
+          <div class="art" id="art">
+            <svg id="stage" viewBox="0 0 1280 560" preserveAspectRatio="xMidYMax meet" role="img" aria-label={meta.stageDescription}>
+              <g id="world">
+                <!-- Far background. Drifts slower than the foreground as he walks. -->
+                <g id="far">
+                  <circle id="sun" class="sun" cx={TORII_X + 90} cy="140" r="50"></circle>
+                  <path class="fuji" d={`M${FUJI_X - 328} ${GROUND} L${FUJI_X - 48} 232 L${FUJI_X - 24} 252 L${FUJI_X} 234 L${FUJI_X + 24} 252 L${FUJI_X + 48} 232 L${FUJI_X + 328} ${GROUND} Z`}></path>
+                  <g class="dress-line">
+                    <path class="dashed" d={`M${FUJI_X - 122} 320 Q${FUJI_X - 84} 348 ${FUJI_X - 44} 318 Q${FUJI_X + 2} 354 ${FUJI_X + 46} 318 Q${FUJI_X + 88} 348 ${FUJI_X + 122} 320`}></path>
+                    <!-- Clouds sit in the band beside the peak, below where scene text goes. -->
+                    <path d={`M${FUJI_X + 250} 244 q14 -18 34 -10 q18 -14 36 2 q18 -2 20 12 Z`}></path>
+                    <path d={`M${FUJI_X - 340} 232 q14 -18 34 -10 q18 -14 36 2 q18 -2 20 12 Z`}></path>
+                  </g>
+                </g>
+
+                <!-- Red-pencil note beside the intro pose. -->
+                <g id="intro-note" class="pencil" transform={`translate(${START_X - 100 * FIGURE_SCALE},${GROUND - 220 * FIGURE_SCALE}) scale(${FIGURE_SCALE})`}>
+                  <path d="M122 96 A26 26 0 0 0 150 78"></path>
+                  <path d="M172 34 Q162 40 152 46"></path>
+                  <path d="M160 37 L151 47 L163 49"></path>
+                  {intro.note.map((line, i) => <text x={150 + i * 6} y={14 + i * 15}>{line}</text>)}
+                </g>
+
+                <g id="posts">
+                {POST_XS.map((x, i) => (
+                  <g class="post" data-post={x}>
+                    <!-- Boards sit above head height so he walks under them. -->
+                    <path class="post-pole" d={`M${x} ${GROUND} L${x} 292`}></path>
+                    <rect class="post-board" x={x - 76} y="260" width="152" height="32"></rect>
+                    <text class="post-label" x={x} y="281">{origin.steps[i]?.sign}</text>
+                  </g>
+                ))}
+                </g>
+
+                <!-- The desk, drawn from behind. Same local space as the seated pose. -->
+                <g id="desk" transform={`translate(${DESK_X - 296 * FIGURE_SCALE},${GROUND - 430 * FIGURE_SCALE}) scale(${FIGURE_SCALE})`}>
+                  <g class="furniture">
+                    <path d="M296 236 L296 318"></path>
+                    <path d="M262 316 L330 316"></path>
+                    <path d="M40 318 L552 318"></path>
+                    <path d="M58 318 L58 430"></path>
+                    <path d="M534 318 L534 430"></path>
+                    <path d="M256 376 L336 376"></path>
+                    <path d="M296 376 L296 410"></path>
+                    <path d="M270 418 L296 410 L322 418"></path>
+                  </g>
+                  <rect id="monitor" class="monitor" x="101" y="60" width="390" height="176"></rect>
+                </g>
+
+                <!-- Gym. -->
+                <g id="gym" transform={at(GYM_X)}>
+                  <g class="dress-line">
+                    <path d="M42 220 L42 100"></path>
+                    <path d="M36 100 L48 100"></path>
+                    <path d="M262 96 L262 220"></path>
+                    <path d="M396 96 L396 220"></path>
+                    <path d="M252 130 L406 130"></path>
+                    <path d="M252 184 L406 184"></path>
+                    <path d="M284 120 L312 120"></path>
+                    <path d="M346 120 L374 120"></path>
+                    <path d="M284 174 L312 174"></path>
+                    <path d="M346 174 L374 174"></path>
+                  </g>
+                  <g class="dress-fill">
+                    <circle cx="281" cy="120" r="9"></circle>
+                    <circle cx="315" cy="120" r="9"></circle>
+                    <circle cx="343" cy="120" r="9"></circle>
+                    <circle cx="377" cy="120" r="9"></circle>
+                    <circle cx="281" cy="174" r="9"></circle>
+                    <circle cx="315" cy="174" r="9"></circle>
+                    <circle cx="343" cy="174" r="9"></circle>
+                    <circle cx="377" cy="174" r="9"></circle>
+                  </g>
+                  <g class="ink-line">
+                    <path d="M-6 172 L142 172"></path>
+                    <path d="M-6 178 L142 178"></path>
+                    <path d="M16 178 L16 220"></path>
+                    <path d="M122 178 L122 220"></path>
+                  </g>
+                  <!-- The bar on its rack, behind him. Hidden while he is lifting. -->
+                  <g id="plate-racked" transform="translate(42 94)">
+                    <circle class="plate-rim" r="24"></circle>
+                    <circle class="plate-ring" r="16"></circle>
+                    <circle class="plate-hub" r="4"></circle>
+                  </g>
+                  <g id="gym-note" class="pencil">
+                    <path d="M84 62 L84 126"></path>
+                    <path d="M79 70 L84 62 L89 70"></path>
+                    <path d="M79 118 L84 126 L89 118"></path>
+                    {gym.note.map((line, i) => <text x="94" y={90 + i * 16}>{line}</text>)}
+                  </g>
+                </g>
+
+                <!-- Kitchen. -->
+                <g id="kitchen" transform={at(KITCHEN_X)}>
+                  <g class="dress-line">
+                    <path d="M294 96 L500 96"></path>
+                    <path d="M294 104 L500 104"></path>
+                    <path d="M494 104 L494 220"></path>
+                    <path d="M390 104 L390 220"></path>
+                    <path d="M344 72 L396 72"></path>
+                    <path d="M347 72 Q370 120 393 72"></path>
+                    <path d="M416 90 L492 90"></path>
+                    <path class="thick" d="M428 90 L480 90"></path>
+                  </g>
+                  <g class="ink-fill">
+                    <rect x="184" y="96" width="110" height="124"></rect>
+                    <rect class="thin" x="198" y="124" width="82" height="70"></rect>
+                    <circle cx="204" cy="110" r="4"></circle>
+                    <circle cx="224" cy="110" r="4"></circle>
+                    <circle cx="244" cy="110" r="4"></circle>
+                  </g>
+                  <g class="ink-line">
+                    <path class="thin" d="M198 156 L280 156"></path>
+                    <path class="thick" d="M178 96 L300 96"></path>
+                    <path class="thick" d="M184 198 L140 206"></path>
+                  </g>
+                  <g id="pie-note" class="pencil">
+                    <path d="M206 60 Q198 70 190 78"></path>
+                    <path d="M190 68 L189 79 L200 76"></path>
+                    <text x="196" y="52">{kitchen.note}</text>
+                  </g>
+                </g>
+
+                <!-- Torii gate. He ends the walk sitting under it. -->
+                <g id="torii" class="torii">
+                  <path d={`M${TORII_X - 80} 558 L${TORII_X - 70} 262`}></path>
+                  <path d={`M${TORII_X + 80} 558 L${TORII_X + 70} 262`}></path>
+                  <path class="beam" d={`M${TORII_X - 136} 230 Q${TORII_X} 256 ${TORII_X + 136} 230`}></path>
+                  <path d={`M${TORII_X - 110} 300 L${TORII_X + 110} 300`}></path>
+                  <path d={`M${TORII_X} 246 L${TORII_X} 300`}></path>
+                </g>
+
+                <g id="figure"></g>
+
+                <!-- Things he carries are drawn over him. Placed by the script. -->
+                <g transform={at(GYM_X)}>
+                  <g id="plate">
+                    <circle class="plate-rim" r="24"></circle>
+                    <circle class="plate-ring" r="16"></circle>
+                    <circle class="plate-hub" r="4"></circle>
+                  </g>
+                </g>
+                <g transform={at(KITCHEN_X)}>
+                  <g id="pie">
+                    <g id="steam" class="dress-line">
+                      <path d="M-12 -26 q-5 -7 0 -14 q5 -7 0 -14"></path>
+                      <path d="M0 -30 q-5 -7 0 -14 q5 -7 0 -14"></path>
+                      <path d="M12 -26 q-5 -7 0 -14 q5 -7 0 -14"></path>
+                    </g>
+                    <g class="ink-fill">
+                      <path d="M-26 0 Q0 -22 26 0 Z"></path>
+                      <path d="M-28 0 L28 0 L21 12 L-21 12 Z"></path>
+                    </g>
+                    <path class="pie-lattice" d="M-14 -8 L-6 0 M-2 -12 L7 0 M10 -11 L18 0"></path>
+                  </g>
+                </g>
+              </g>
+            </svg>
+          </div>
+
+          <div class="ruler" id="ruler" aria-hidden="true"></div>
+
+          <div class="texts">
+            <section class="text text-intro" id="text-intro">
+              <p class="eyebrow">{intro.role.toUpperCase()}</p>
+              <h1>{intro.name}</h1>
+              <svg class="underline pencil" viewBox="0 0 460 16" aria-hidden="true">
+                <path d="M4 9 Q120 3 230 8 T456 6"></path>
+              </svg>
+              <p class="punchline">{intro.punchline}</p>
+              <p class="bio">{intro.bio}</p>
+            </section>
+
+            <section class="text text-origin" id="text-origin">
+              <h2>{origin.title}</h2>
+              <ol class="steps">
+                {origin.steps.slice(0, POST_XS.length).map((step, i) => (
+                  <li class="step" data-step={i}>
+                    <span class="step-no">{origin.stepLabel} {String(i + 1).padStart(2, '0')}</span>
+                    <p>{step.text}</p>
+                  </li>
+                ))}
+              </ol>
+            </section>
+
+            <section class="text text-scene" id="text-gym">
+              <p class="eyebrow">{gym.eyebrow}</p>
+              <h2 class="display">{gym.title}</h2>
+              <p class="bio">{gym.line}</p>
+            </section>
+
+            <section class="text text-scene" id="text-kitchen">
+              <p class="eyebrow">{kitchen.eyebrow}</p>
+              <h2 class="display display-long">{kitchen.title}</h2>
+              <p class="bio">{kitchen.line}</p>
+            </section>
+
+            <section class="text text-scene" id="text-japan">
+              <p class="eyebrow">{japan.eyebrow}</p>
+              <h2 class="display display-long">{japan.title}</h2>
+              <p class="bio">{japan.line}</p>
+            </section>
+
+            <section class="text text-contact" id="text-contact">
+              <p class="eyebrow">{contact.eyebrow}</p>
+              <h2 class="display">{contact.title}</h2>
+              <div class="contact-links">
+                {contact.links.map((c) => (
+                  <a class:list={['contact-link', { 'is-primary': c.primary }]} href={c.url} target={c.url.startsWith('mailto:') ? undefined : '_blank'} rel="noopener noreferrer">
+                    <strong>{c.label}</strong>
+                    <span>{c.detail}</span>
+                  </a>
+                ))}
+              </div>
+              <p class="pencil-text back-note">{contact.backNote}</p>
+              <p class="rights">{contact.rights.replace('{name}', NAME)}</p>
+            </section>
+          </div>
+
+          <!-- The monitor's screen. Scaled and moved by the camera so it stays on the monitor. -->
+          <section class="editor" id="editor" aria-label={desk.label}>
+            <div class="editor-inner">
+              <header class="editor-bar">
+                <span>{desk.path}<span id="editor-path">{files[0].label}</span></span>
+                <span id="editor-note">{files[0].note}</span>
+              </header>
+              <div class="editor-body">
+                <div class="editor-files" role="tablist" aria-label="Files">
+                  {files.map((f) => (
+                    <button type="button" role="tab" class="file" data-file={f.id} data-label={f.label} data-note={f.note}>
+                      {f.label}
+                    </button>
+                  ))}
+                  <p class="file-hint pencil-text">{desk.hint.map((line) => <span>{line}</span>)}</p>
+                </div>
+
+                <div class="editor-pane">
+                  <div class="pane pane-code" data-pane="languages">
+                    <p><span class="kw">export const</span> languages = [</p>
+                    {desk.languages.items.map((l) => <p class="indent">"{l}",</p>)}
+                    <p>];</p>
+                  </div>
+
+                  <div class="pane pane-grid" data-pane="tools" hidden>
+                    {desk.tools.items.map((t) => (
+                      <a class="chip" href={t.url} target="_blank" rel="noopener noreferrer">{t.name}</a>
+                    ))}
+                  </div>
+
+                  <div class="pane pane-stack" data-pane="databases" hidden>
+                    <article class="card">
+                      <h3>{desk.databases.featured.name}</h3>
+                      <p>{desk.databases.featured.description}</p>
+                      <p class="meta">{desk.databases.featured.skills.join(' · ')}</p>
+                    </article>
+                    <div class="pane-grid two">
+                      {desk.databases.others.map((d) => <div class="chip">{d}</div>)}
+                    </div>
+                  </div>
+
+                  <div class="pane pane-stack" data-pane="experience" hidden>
+                    {experience.map((e, i) => (
+                      <article class="entry" data-entry={i}>
+                        <button type="button" class="entry-head">
+                          <span class="entry-role">{e.role}</span>
+                          <span class="entry-company">{e.company}</span>
+                          <span class="entry-kind">{kindLabel(e.kind)}</span>
+                          <span class="entry-dates">{dates(e.start, e.end)}</span>
+                        </button>
+                        <div class="entry-body">
+                          <p>{e.summary}</p>
+                          <p class="meta">{e.stack.join(' · ')}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
+                  <div class="pane pane-stack" data-pane="certificates" hidden>
+                    {desk.certificates.items.map((c) => (
+                      <a class="card card-row" href={c.url} target="_blank" rel="noopener noreferrer">
+                        <h3>{c.title}</h3>
+                        <span class="entry-company">{c.issuer}</span>
+                        <span class="entry-dates">{c.year}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="strip" aria-label="Scenes">
+          {scenes.map((s, i) => (
+            <a class="scene" href={`#scene-${s.n}`} data-scene={i} data-goto={s.id}>
+              <span class="marker"></span>
+              <span>{s.n} {s.label}</span>
+            </a>
+          ))}
+          <span class="strip-cue">{nav.scrollCue}</span>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      import '../scripts/main.ts';
+    </script>
+  </body>
+</html>

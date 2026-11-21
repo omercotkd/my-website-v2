@@ -1,0 +1,959 @@
+/* Whiteprint: light graph paper, blue ink, one red pencil. See DESIGN.md. */
+
+:root {
+  --paper: #f6f8fb;
+  --grid-minor: #e3eaf5;
+  --grid-major: #c5d5ee;
+  --ink: #1e3fa8;
+  --text: #14275e;
+  --text-2: #33457a;
+  --muted: #4a5a85;
+  --dress: #7c93cc;
+  --pencil: #d4311f;
+
+  --font-head: 'Space Grotesk Variable', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --font-hand: 'Caveat', cursive;
+
+  --gutter: clamp(16px, 5vw, 64px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--pencil);
+  outline-offset: 2px;
+}
+
+/* ---- Page frame ---------------------------------------------------- */
+
+/* The scroller is tall (height set by the script); the pin stays on screen. */
+.scroller {
+  position: relative;
+}
+
+.pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(var(--grid-minor) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px);
+  background-size:
+    80px 80px,
+    80px 80px,
+    16px 16px,
+    16px 16px;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+  padding: 0 var(--gutter);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+}
+
+.nav a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.nav-home {
+  font-weight: 600;
+}
+
+.nav-links {
+  display: flex;
+  gap: 36px;
+}
+
+.nav-links > * {
+  padding: 6px 0;
+  border-bottom: 2px solid transparent;
+}
+
+.nav-links [aria-current='true'] {
+  font-weight: 600;
+  border-bottom-color: var(--ink);
+}
+
+.is-soon {
+  color: var(--muted);
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ---- Stage --------------------------------------------------------- */
+
+.stagebox {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 10px;
+  min-height: 0;
+}
+
+.art {
+  grid-row: 1;
+  grid-column: 1;
+  position: relative;
+  min-height: 0;
+}
+
+#stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* The ground. Its tick marks slide with the camera. */
+.ruler {
+  grid-row: 2;
+  border-top: 2px solid var(--ink);
+  background-image: repeating-linear-gradient(90deg, var(--ink) 0 1px, transparent 1px 16px);
+  background-position-x: var(--ruler-x, 0);
+}
+
+.fig-line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.fig-head {
+  fill: #fff;
+}
+
+.fig-joint {
+  fill: #fff;
+  stroke: var(--ink);
+  stroke-width: 1.1;
+}
+
+.pencil path {
+  fill: none;
+  stroke: var(--pencil);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pencil text {
+  fill: var(--pencil);
+  font: 600 16px var(--font-hand);
+}
+
+.post-pole {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.post-board {
+  fill: #fff;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.post-label {
+  fill: var(--text);
+  font: 600 12px var(--font-mono);
+  letter-spacing: 0.1em;
+  text-anchor: middle;
+}
+
+.post.is-active .post-board {
+  fill: var(--ink);
+}
+
+.post.is-active .post-label {
+  fill: #fff;
+}
+
+.post.is-ahead .post-pole,
+.post.is-ahead .post-board {
+  stroke-dasharray: 5 5;
+}
+
+.post.is-ahead .post-label {
+  fill: var(--muted);
+}
+
+/* Line and fill styles shared by every prop. */
+.ink-line > * {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ink-fill > * {
+  fill: #fff;
+  stroke: var(--ink);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+
+.dress-line > * {
+  fill: none;
+  stroke: var(--dress);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dress-fill > * {
+  fill: #fff;
+  stroke: var(--dress);
+  stroke-width: 1.5;
+}
+
+.ink-line > .thin,
+.ink-fill > .thin {
+  stroke-width: 1;
+}
+
+.ink-line > .thick {
+  stroke-width: 3.2;
+}
+
+.dress-line > .thick {
+  stroke-width: 7;
+}
+
+.dress-line > .dashed {
+  stroke-dasharray: 6 5;
+}
+
+.plate-rim {
+  fill: #fff;
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+
+.plate-ring {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+
+.plate-hub {
+  fill: var(--ink);
+}
+
+.pie-lattice {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.torii > * {
+  fill: none;
+  stroke: var(--pencil);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.torii > .beam {
+  stroke-width: 9;
+}
+
+.fuji {
+  fill: var(--paper);
+  stroke: var(--dress);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.sun {
+  fill: color-mix(in srgb, var(--pencil) 12%, var(--paper));
+  stroke: var(--pencil);
+  stroke-width: 2;
+}
+
+.furniture path {
+  fill: none;
+  stroke: var(--dress);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.monitor {
+  fill: #fff;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+/* ---- Scene text ---------------------------------------------------- */
+
+.texts {
+  grid-row: 1;
+  grid-column: 1;
+  position: relative;
+  min-height: 0;
+  pointer-events: none;
+}
+
+/* The script fades these in and out as the scenes change. */
+.text {
+  position: absolute;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.text p,
+.text h1,
+.text h2 {
+  margin: 0;
+}
+
+.text-intro {
+  left: 46%;
+  top: 10%;
+  width: min(48%, 640px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.eyebrow {
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+}
+
+h1 {
+  font: 700 clamp(56px, 8.4vw, 116px) / 0.92 var(--font-head);
+  letter-spacing: -0.035em;
+}
+
+.underline {
+  width: min(100%, 460px);
+  height: 16px;
+}
+
+.underline path {
+  stroke-width: 2.5;
+}
+
+.punchline {
+  font: 500 clamp(20px, 2.4vw, 30px) / 1.15 var(--font-head);
+}
+
+.bio {
+  max-width: 580px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-2);
+  text-wrap: pretty;
+}
+
+.text-scene {
+  left: calc(var(--gutter) + 32px);
+  top: 12%;
+  width: min(40%, 500px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.display {
+  font-size: clamp(48px, 7.4vw, 104px);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+}
+
+.display-long {
+  font-size: clamp(40px, 5.8vw, 84px);
+}
+
+.text-contact {
+  left: 56%;
+  top: 10%;
+  width: min(38%, 440px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contact-link {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  padding: 0 18px;
+  border: 1.5px solid var(--ink);
+  background: #fff;
+  font-size: 15px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.contact-link span {
+  color: var(--text-2);
+}
+
+.contact-link:hover {
+  background: var(--grid-minor);
+}
+
+.contact-link.is-primary {
+  background: var(--ink);
+  color: #fff;
+}
+
+.contact-link.is-primary span {
+  color: #fff;
+}
+
+.back-note {
+  font-size: 24px;
+  transform: rotate(-2deg);
+}
+
+.rights {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.text-origin {
+  left: 0;
+  right: 0;
+  top: 0;
+  padding: 12px var(--gutter) 0;
+}
+
+h2 {
+  font: 700 clamp(28px, 3.4vw, 44px) / 1.1 var(--font-head);
+  letter-spacing: -0.03em;
+}
+
+.steps {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(16px, 3.5vw, 50px);
+}
+
+.step {
+  border-top: 2px solid var(--grid-major);
+  padding-top: 10px;
+  color: var(--muted);
+  transition:
+    color 0.25s,
+    border-color 0.25s;
+}
+
+.step-no {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+
+.step p {
+  margin-top: 6px;
+  font-size: clamp(12px, 1.1vw, 14px);
+  line-height: 1.6;
+}
+
+.step.is-active {
+  border-top-color: var(--ink);
+  color: var(--text);
+}
+
+.step.is-active .step-no {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---- Editor: the monitor's screen ---------------------------------- */
+
+/* Sized to the fully zoomed monitor, then scaled down by the script so it
+   sits on the monitor at every zoom level. Sizes inside are in em, driven
+   by the container width, so the layout scales as one piece. */
+.editor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--ed-w, 900px);
+  height: var(--ed-h, 400px);
+  transform-origin: 50% 50%;
+  visibility: hidden;
+  container-type: size;
+  overflow: hidden;
+  background: #fff;
+  border: 2px solid var(--ink);
+  will-change: transform;
+}
+
+/* He has left the desk: the screen dims. */
+.editor-inner {
+  transition: opacity 0.35s;
+}
+
+.editor.is-off .editor-inner {
+  opacity: 0.12;
+}
+
+.editor.is-full {
+  transition:
+    width 0.3s ease,
+    height 0.3s ease,
+    transform 0.3s ease;
+}
+
+.editor-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(11px, 1.42cqw, 22px);
+}
+
+.editor-bar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1em;
+  height: 3em;
+  padding: 0 1.4em;
+  border-bottom: 1.5px solid var(--ink);
+  font-size: 0.93em;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.editor-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.editor-files {
+  flex-shrink: 0;
+  width: 16.5em;
+  display: flex;
+  flex-direction: column;
+  border-right: 1.5px solid var(--ink);
+}
+
+.file {
+  height: 3.15em;
+  padding: 0 1.4em;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--text-2);
+  text-align: left;
+  cursor: pointer;
+}
+
+.file:hover {
+  background: var(--grid-minor);
+}
+
+.file[aria-selected='true'] {
+  background: var(--ink);
+  color: #fff;
+}
+
+.pencil-text {
+  font-family: var(--font-hand);
+  font-weight: 600;
+  color: var(--pencil);
+}
+
+.file-hint span {
+  display: block;
+}
+
+.file-hint {
+  margin: 1.1em 0 0 1.1em;
+  font-size: 1.75em;
+  line-height: 1.1;
+  transform: rotate(-3deg);
+}
+
+.editor-pane {
+  flex: 1;
+  min-width: 0;
+  padding: 1.1em 2.2em;
+  overflow: hidden;
+}
+
+.pane[hidden] {
+  display: none;
+}
+
+.pane p {
+  margin: 0;
+}
+
+.pane-code p {
+  font-size: 1.4em;
+  line-height: 1.7;
+}
+
+.indent {
+  padding-left: 1.6em;
+}
+
+.kw {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.pane-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85em;
+}
+
+.pane-grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.pane-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55em;
+}
+
+.chip {
+  border: 1.5px solid var(--ink);
+  padding: 0.95em 1.1em;
+  background: #fff;
+  font-size: 1.1em;
+  color: var(--text);
+  text-decoration: none;
+}
+
+a.chip:hover,
+a.card:hover {
+  background: var(--grid-minor);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  border: 1.5px solid var(--ink);
+  padding: 1.2em 1.4em;
+  color: var(--text);
+  text-decoration: none;
+  line-height: 1.6;
+}
+
+.card h3 {
+  margin: 0;
+  font: 700 1.9em / 1.1 var(--font-head);
+}
+
+.card-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 1.1em;
+}
+
+.card-row .entry-dates {
+  margin-left: auto;
+}
+
+.meta {
+  font-size: 0.88em;
+  color: var(--text-2);
+}
+
+.entry {
+  border: 1.5px solid var(--ink);
+}
+
+.entry-head {
+  width: 100%;
+  min-height: 2.8em;
+  display: flex;
+  align-items: center;
+  gap: 1.1em;
+  padding: 0 1.2em;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.entry-role {
+  font: 700 1.3em var(--font-head);
+}
+
+.entry-company {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.entry-kind {
+  margin-left: auto;
+  border: 1px solid var(--ink);
+  padding: 0.15em 0.6em;
+  font-size: 0.82em;
+  letter-spacing: 0.1em;
+}
+
+.entry-dates {
+  font-size: 0.9em;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.entry-body {
+  display: none;
+  padding: 0.85em 1.2em 0.95em;
+  border-top: 1px solid var(--grid-major);
+  line-height: 1.5;
+}
+
+.entry-body p + p {
+  margin-top: 0.7em;
+}
+
+.entry.is-open .entry-head {
+  background: var(--grid-minor);
+}
+
+.entry.is-open .entry-body {
+  display: block;
+}
+
+/* When the screen is narrow (a phone), files become a row of tabs. */
+@container (max-width: 560px) {
+  .editor-inner {
+    font-size: 13px;
+  }
+
+  .editor-body {
+    flex-direction: column;
+  }
+
+  .editor-files {
+    width: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1.5px solid var(--ink);
+  }
+
+  .file {
+    flex-shrink: 0;
+    height: 44px;
+    padding: 0 14px;
+  }
+
+  .file-hint,
+  .entry-kind,
+  #editor-note {
+    display: none;
+  }
+
+  .editor-pane {
+    padding: 14px;
+    overflow-y: auto;
+  }
+
+  .pane-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .entry-head {
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    padding: 10px 12px;
+  }
+
+  .entry-dates {
+    margin-left: auto;
+  }
+}
+
+/* ---- Scene strip --------------------------------------------------- */
+
+.strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: center;
+  height: 70px;
+  padding: 0 var(--gutter);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+
+.scene {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.marker {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--ink);
+}
+
+.scene[aria-current='true'] {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.scene[aria-current='true'] .marker {
+  background: var(--ink);
+}
+
+.scene.is-soon .marker {
+  border-style: dashed;
+}
+
+.strip-cue {
+  display: none;
+  color: var(--text-2);
+}
+
+/* ---- Phone: stage on top, text below ------------------------------- */
+
+@media (max-width: 760px) {
+  .nav {
+    height: 56px;
+    font-size: 12px;
+  }
+
+  .nav-links {
+    gap: 20px;
+  }
+
+  .nav-links .is-soon {
+    display: none;
+  }
+
+  .stagebox {
+    grid-template-rows: 46% 10px minmax(0, 1fr);
+  }
+
+  .texts {
+    grid-row: 3;
+  }
+
+  .text-intro {
+    left: 0;
+    top: 0;
+    width: auto;
+    padding: 20px 20px 0;
+    gap: 10px;
+  }
+
+  h1 {
+    font-size: clamp(44px, 15vw, 60px);
+  }
+
+  .bio {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .text-origin {
+    padding: 18px 20px 0;
+  }
+
+  .text-scene,
+  .text-contact {
+    left: 0;
+    top: 0;
+    width: auto;
+    right: 0;
+    padding: 20px 20px 0;
+    gap: 10px;
+  }
+
+  .display,
+  .display-long {
+    font-size: clamp(38px, 12vw, 56px);
+  }
+
+  .back-note {
+    font-size: 20px;
+  }
+
+  .steps {
+    display: block;
+  }
+
+  .step {
+    display: none;
+  }
+
+  .step.is-active {
+    display: block;
+  }
+
+  .step p {
+    font-size: 14px;
+  }
+
+  .strip {
+    display: flex;
+    justify-content: space-between;
+    height: 52px;
+    border-top: 1.5px solid var(--ink);
+    background: #fff;
+  }
+
+  .scene {
+    display: none;
+  }
+
+  .scene[aria-current='true'] {
+    display: flex;
+  }
+
+  .strip-cue {
+    display: block;
+  }
+}

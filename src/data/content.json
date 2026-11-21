@@ -1,0 +1,178 @@
+{
+  "meta": {
+    "stageDescription": "A stick figure waves, walks past four signposts, works at a desk, bench presses at the gym, takes an apple pie out of the oven, then walks to a torii gate under Mount Fuji and sits down."
+  },
+
+  "nav": {
+    "sheet": "SHEET",
+    "about": "ABOUT",
+    "work": "WORK",
+    "afterHours": "AFTER HOURS",
+    "contact": "CONTACT",
+    "scrollCue": "SCROLL TO WALK ↓"
+  },
+
+  "scenes": ["INTRO", "ORIGIN", "DESK", "GYM", "KITCHEN", "JAPAN", "CONTACT"],
+
+  "intro": {
+    "name": "Omer Cohen",
+    "role": "Full-Stack Developer",
+    "punchline": "Problem solver through code",
+    "bio": "I’m a self-taught full-stack developer with a focus on backend systems and a passion for problem-solving. When I’m not building, you’ll probably find me at the gym, cooking up something new, or planning my next trip.",
+    "note": ["moves when", "you scroll"]
+  },
+
+  "origin": {
+    "title": "How I started",
+    "stepLabel": "STEP",
+    "steps": [
+      {
+        "sign": "HIGH SCHOOL",
+        "text": "I first discovered coding in high school by learning C in a electronics course, but life took me in other directions for a while."
+      },
+      {
+        "sign": "LOCKDOWN",
+        "text": "During the corona lockdown, I got bored and decided to learn new skills, so I started coding again with C, learning about networking and Python."
+      },
+      {
+        "sign": "REACT",
+        "text": "After a while a friend of my dad asked me if I know how to code, and told me if I learn React he can offer me a job. So I dove into React and web development."
+      },
+      {
+        "sign": "FIRST JOB",
+        "text": "He kept his word and offered me a half-time job at SaitLabs, and after a month I was hired full-time."
+      }
+    ]
+  },
+
+  "desk": {
+    "label": "Skills and experience",
+    "path": "~/omer/",
+    "hint": ["↑ click a file,", "or keep scrolling"],
+
+    "languages": {
+      "file": "languages.ts",
+      "note": "{count} languages",
+      "items": ["Python", "JavaScript", "TypeScript", "HTML/CSS", "Rust", "C"]
+    },
+
+    "tools": {
+      "file": "tools.ts",
+      "note": "{count} frameworks and tools",
+      "items": [
+        { "name": "FastAPI", "url": "https://fastapi.tiangolo.com/" },
+        { "name": "Flask", "url": "https://flask.palletsprojects.com/en/stable/" },
+        { "name": "React", "url": "https://react.dev/" },
+        { "name": "Node.js", "url": "https://nodejs.org/en/about/" },
+        { "name": "Docker", "url": "https://www.docker.com/" },
+        { "name": "Git", "url": "https://git-scm.com/" },
+        { "name": "Axum", "url": "https://docs.rs/axum/latest/axum/" },
+        { "name": "Apache Kafka", "url": "https://kafka.apache.org/" },
+        { "name": "Airflow", "url": "https://airflow.apache.org/" },
+        { "name": "AWS", "url": "https://aws.amazon.com/" },
+        { "name": "GitHub Actions", "url": "https://docs.github.com/en/actions" }
+      ]
+    },
+
+    "databases": {
+      "file": "databases.ts",
+      "note": "{count} databases",
+      "featured": {
+        "name": "MongoDB",
+        "description": "Advanced knowledge and skills in working with both advanced and basic features.",
+        "skills": ["Schema Design", "Aggregation Framework", "Indexing", "Performance Optimization", "Atlas Search"]
+      },
+      "others": ["Redis", "PostgreSQL"]
+    },
+
+    "experience": {
+      "file": "experience.json",
+      "note": "{count} entries",
+      "present": "Present",
+      "kinds": { "job": "JOB", "volunteer": "VOLUNTEER" },
+      "items": [
+        {
+          "kind": "job",
+          "role": "Full-Stack Developer",
+          "company": "EncoreAI",
+          "start": "2026-05",
+          "end": null,
+          "summary": "Building the voice side of EncoreAI’s AI agent platform (formerly Insait) and bringing new speech and language models onto it. Rebuilt the real-time call engine on Pipecat, designed a circuit breaker with provider fallbacks, and built Voice Bench, an internal tool for comparing speech models on real call audio. Cut costs by migrating to cheaper services and trimming internal waste.",
+          "stack": ["Python", "FastAPI", "Pipecat", "Twilio", "PostgreSQL", "Kafka", "Kubernetes", "AWS", "React", "TypeScript"]
+        },
+        {
+          "kind": "job",
+          "role": "Full-Stack Developer",
+          "company": "AbaHatuv",
+          "start": "2024-02",
+          "end": "2026-05",
+          "summary": "Maintained and expanded the company’s in-house backend coaching platform for weight loss, while developing a new web application for its customers. Implemented AI chatbot functionality on the existing chat platform, optimized database performance through indexing and query tuning, and built custom PDF generation features using Python and HTML.",
+          "stack": ["React", "TypeScript", "Python", "MongoDB", "FastAPI", "Git", "Docker", "AWS"]
+        },
+        {
+          "kind": "volunteer",
+          "role": "Volunteer Developer",
+          "company": "Carenet",
+          "start": "2023-12",
+          "end": "2024-04",
+          "summary": "Contributed to Carenet, a platform connecting mental health support to victims of the October 7 attack. Built and deployed the backend using FastAPI, Koyeb, and MongoDB, automated data updates with GitHub Actions, and enhanced multilingual search with vectorization and MongoDB’s vector search.",
+          "stack": ["Python", "MongoDB", "FastAPI", "Redis", "Git", "Vector Search", "RAG", "Web scraping", "GitHub Actions"]
+        },
+        {
+          "kind": "job",
+          "role": "Full-Stack Developer (Backend Focused)",
+          "company": "Saitlabs",
+          "start": "2022-03",
+          "end": "2024-02",
+          "summary": "Designed and maintained REST APIs, while building database schemas and relations from scratch. Developed a Python-based Windows executable for synchronizing medical files across isolated networks, and assisted frontend developers in creating React components and JavaScript functions.",
+          "stack": ["Python", "MongoDB", "FastAPI", "Flask", "React", "Redis", "Git", "Node.js"]
+        }
+      ]
+    },
+
+    "certificates": {
+      "file": "certificates.ts",
+      "note": "{count} certificate",
+      "items": [
+        {
+          "title": "MongoDB Associate Developer",
+          "issuer": "MongoDB",
+          "year": "2025",
+          "url": "https://www.credly.com/badges/a23d4373-b218-4636-9711-36aa82019eda/linked_in_profile"
+        }
+      ]
+    }
+  },
+
+  "gym": {
+    "eyebrow": "AFTER HOURS · 1 OF 3",
+    "title": "Gym",
+    "line": "[YOUR LINE ABOUT TRAINING: what you do, how often, what you like about it]",
+    "note": ["reps follow", "the scroll"]
+  },
+
+  "kitchen": {
+    "eyebrow": "AFTER HOURS · 2 OF 3",
+    "title": "Baking & Cooking",
+    "line": "[YOUR LINE ABOUT THE KITCHEN: what you like to make, a favourite recipe]",
+    "note": "apple pie"
+  },
+
+  "japan": {
+    "eyebrow": "AFTER HOURS · 3 OF 3",
+    "title": "Backpacking",
+    "line": "[YOUR LINE ABOUT TRAVEL: where you have been, where is next]"
+  },
+
+  "contact": {
+    "eyebrow": "END OF THE ROAD",
+    "title": "Contact",
+    "links": [
+      { "label": "GitHub", "detail": "github.com/omercotkd", "url": "https://github.com/omercotkd", "primary": false },
+      { "label": "LinkedIn", "detail": "in/omer-cohen", "url": "https://www.linkedin.com/in/omer-cohen-9b8758110/", "primary": false },
+      { "label": "Email", "detail": "say hello →", "url": "mailto:omercotkd+mywebsite@gmail.com", "primary": true }
+    ],
+    "backNote": "↑ scroll up to walk back",
+    "rights": "© {name} · ALL RIGHTS RESERVED"
+  }
+}
